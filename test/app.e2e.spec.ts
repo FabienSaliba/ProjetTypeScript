@@ -2,7 +2,7 @@ import type { INestApplication } from '@nestjs/common';
 import { Test, type TestingModule } from '@nestjs/testing';
 import * as request from 'supertest';
 import type supertest from 'supertest';
-import { BookModule } from '../src/book.module';
+import { GareModule } from '../src/gare.module';
 
 describe('Books API', () => {
   let app: INestApplication;
@@ -10,7 +10,7 @@ describe('Books API', () => {
 
   beforeEach(async () => {
     const moduleRef: TestingModule = await Test.createTestingModule({
-      imports: [BookModule],
+      imports: [GareModule],
     }).compile();
 
     app = moduleRef.createNestApplication();
