@@ -1,0 +1,109 @@
+{
+	"info": {
+		"_postman_id": "62278d9c-38d9-4550-bfa5-ccd2df06b78e",
+		"name": "Gares",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "48144566"
+	},
+	"item": [
+		{
+			"name": "résumé",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{url}}/gares",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"gares"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "détail",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{url}}/gares/:id",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"gares",
+						":id"
+					],
+					"variable": [
+						{
+							"key": "id",
+							"value": ""
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Ajouter une gare",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"id\": \"1234\",\n  \"name\": \"Toulouse\",\n  \"latitude\": 45.12345,\n  \"longitude\": 2.98765,\n  \"favorite\": false\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/gares",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"gares"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Mettre une gare en favoris",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "{{url}}gares/:id/favorite",
+					"host": [
+						"{{url}}gares"
+					],
+					"path": [
+						":id",
+						"favorite"
+					],
+					"variable": [
+						{
+							"key": "id",
+							"value": ""
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Recherche",
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		}
+	]
+}
