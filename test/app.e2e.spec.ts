@@ -4,126 +4,98 @@ import * as request from 'supertest';
 import type supertest from 'supertest';
 import { GareModule } from '../src/gare.module';
 
-describe('Books API', () => {
-  let app: INestApplication;
-  let httpRequester: supertest.Agent;
+describe('Gares API', () => {
+    let app: INestApplication;
+    let httpRequester: supertest.Agent;
 
-  beforeEach(async () => {
-    const moduleRef: TestingModule = await Test.createTestingModule({
-      imports: [GareModule],
-    }).compile();
+    beforeEach(async () => {
+        const moduleRef: TestingModule = await Test.createTestingModule({
+            imports: [GareModule],
+        }).compile();
 
-    app = moduleRef.createNestApplication();
-    await app.init();
+        app = moduleRef.createNestApplication();
+        await app.init();
 
-    httpRequester = request(app.getHttpServer());
-  });
-
-  it('GET /books', async () => {
-    const response = await httpRequester.get('/books').expect(200);
-
-    expect(response.body).toEqual(expect.any(Array));
-  });
-
-  it('POST /books', async () => {
-    const response = await httpRequester
-      .post('/books')
-      .send({
-        isbn: '978-2081510436',
-        title: 'Candide',
-        author: 'Voltaire',
-        date: '1759',
-      })
-      .expect(201);
-
-    expect(response.body).toEqual({
-      isbn: '978-2081510436',
-      title: 'Candide',
-      author: 'Voltaire',
-      date: '1759',
-    });
-  });
-
-  it('GET /books/:isbn', async () => {
-    // First prepare the data by adding a book
-    await httpRequester.post('/books').send({
-      isbn: '978-2081510436',
-      title: 'Candide',
-      author: 'Voltaire',
-      date: '1759',
+        httpRequester = request(app.getHttpServer());
     });
 
-    // Then get the previously stored book
-    const response = await httpRequester
-      .get('/books/978-2081510436')
-      .expect(200);
+    it('GET /gares → should return an array of gares', async () => {
+        const response = await httpRequester.get('/gares').expect(200);
 
-    expect(response.body).toEqual({
-      isbn: '978-2081510436',
-      title: 'Candide',
-      author: 'Voltaire',
-      date: '1759',
-    });
-  });
-
-  it('GET /books by author', async () => {
-    // First prepare the data by adding some books
-    await httpRequester.post('/books').send({
-      isbn: '978-2081510436',
-      title: 'Candide',
-      author: 'Voltaire',
-      date: '1759',
-    });
-    await httpRequester.post('/books').send({
-      isbn: '978-2081510438',
-      title: 'Zadig',
-      author: 'Voltaire',
-      date: '1748',
-    });
-    await httpRequester.post('/books').send({
-      isbn: '978-2081510437',
-      title: 'La Cantatrice chauve',
-      author: 'Ionesco',
-      date: '1950',
+        expect(response.body).toEqual(expect.any(Array));
+        expect(response.body[0]).toHaveProperty('id');
+        expect(response.body[0]).toHaveProperty('name');
+        expect(response.body[0]).toHaveProperty('latitude');
+        expect(response.body[0]).toHaveProperty('longitude');
+        expect(response.body[0]).toHaveProperty('favorite');
     });
 
-    // Then get the previously stored book
-    const response = await httpRequester
-      .get('/books')
-      .query({ author: 'Voltaire' })
-      .expect(200);
+    it('GET /gares?id= → should return a single gare', async () => {
+        const all = await httpRequester.get('/gares').expect(200);
+        const gareId = all.body[0].id;
 
-    expect(response.body).toEqual([
-      {
-        isbn: '978-2081510436',
-        title: 'Candide',
-        author: 'Voltaire',
-        date: '1759',
-      },
-      {
-        isbn: '978-2081510438',
-        title: 'Zadig',
-        author: 'Voltaire',
-        date: '1748',
-      },
-    ]);
-  });
+        const response = await httpRequester
+            .get('/gares')
+            .query({ id: gareId })
+            .expect(200);
 
-  it('DELETE /books/:isbn', async () => {
-    // First prepare the data by adding a book
-    await httpRequester.post('/books').send({
-      isbn: '978-2081510436',
-      title: 'Candide',
-      author: 'Voltaire',
-      date: '1759',
+        expect(response.body).toHaveProperty('id', gareId);
+        expect(response.body).toHaveProperty('name');
     });
 
-    // Delete the book
-    await httpRequester.delete('/books/978-2081510436').expect(200);
+    it('PUT /gares/:id → should set a gare as favorite', async () => {
+        const all = await httpRequester.get('/gares').expect(200);
+        const gareId = all.body[0].id;
 
-    // Finally, check the book was successfully deleted
-    const response = await httpRequester.get('/books');
+        const response = await httpRequester
+            .put(`/gares/${gareId}`)
+            .send({ favorite: true })
+            .expect(200);
 
-    expect(response.body).toEqual([]);
-  });
+        expect(response.body).toEqual({
+            success: true,
+            message: 'Gare modifiée',
+            id: gareId,
+            favorite: true,
+        });
+    });
+
+    it('GET /gares?term=paris → should return results for search', async () => {
+        const response = await httpRequester
+            .get('/gares')
+            .query({ term: 'paris' })
+            .expect(200);
+
+        expect(response.body).toEqual(expect.any(Array));
+        if (response.body.length > 0) {
+            expect(response.body[0]).toHaveProperty('name');
+            expect(response.body[0].name.toLowerCase()).toContain('paris');
+        }
+    });
+
+    it('POST /gares → should add a new gare', async () => {
+        const newGare = {
+            id: '1234',
+            name: 'Toulouse Matabiau',
+            latitude: 45.0,
+            longitude: 2.0,
+            favorite: true,
+        };
+
+        const response = await httpRequester
+            .post('/gares')
+            .send(newGare)
+            .expect(201);
+
+        expect(response.body).toEqual({
+            message: 'Gare ajoutée avec succès',
+            gare: newGare,
+        });
+
+        // Vérifier qu’on la retrouve ensuite dans la liste
+        const all = await httpRequester.get('/gares').expect(200);
+        const found = all.body.find((g: any) => g.id === '1234');
+        expect(found).toBeDefined();
+        expect(found.name).toBe('Toulouse Matabiau');
+    });
 });
