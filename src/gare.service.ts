@@ -6,7 +6,7 @@ import { GareResume } from './gareResume';
 
 @Injectable()
 export class GareService implements OnModuleInit {
-    private gares: Map<string, GareResume>; // stockage direct des résumés
+    private gares: Map<string, GareResume>;
 
 
     constructor(private readonly httpService: HttpService) {
@@ -65,8 +65,6 @@ export class GareService implements OnModuleInit {
             console.error(error);
         }
     }
-
-    // Dans GareService
 
     private normalize(text: string): string {
         return (text || '')

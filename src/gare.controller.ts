@@ -21,7 +21,6 @@ export class GareController {
         }
     }
 
-    // Ajouter une gare manuellement
     @Post('/gares')
     create(@Body() gare: GareResume) {
         this.gareService.addGare(gare);
@@ -31,7 +30,6 @@ export class GareController {
         };
     }
 
-    // Marquer une gare comme favorite ou non
     @Put('/gares/:id')
     setFavorite(
         @Param('id') id: string,
